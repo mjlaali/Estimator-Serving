@@ -1,0 +1,18 @@
+model_config_list: {
+  config: {
+    name: "toy",
+    base_path: "/models/toy",
+    model_platform: "tensorflow",
+    model_version_policy: {
+       all: {}
+    }
+  },
+  config: {
+    name: "iris",
+    base_path: "/models/iris_model",
+    model_platform: "tensorflow",
+    model_version_policy: {
+       all: {}
+    }
+  }
+}

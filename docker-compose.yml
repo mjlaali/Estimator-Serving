@@ -1,0 +1,24 @@
+version: '3'
+services:
+  s2t:
+    container_name: s2t
+    image: eai-nlp-s2t:latest
+    ports:
+      - "5001:9000"
+  t2t:
+    container_name: t2t
+    image: eai-nlp-t2t:latest
+    ports:
+      - "5002:9000"
+  t2s:
+    container_name: t2s
+    image: eai-nlp-t2s:latest
+    ports:
+      - "5003:9000"
+  api:
+    container_name: api
+    image: eai-nlp-api:latest
+    environment:
+      - "SERVER_PORT=9000"
+    ports:
+      - "5004:5000"

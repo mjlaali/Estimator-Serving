@@ -1,0 +1,49 @@
+FROM tensorflow/tensorflow:1.3.0-py3
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+# Install git
+RUN apt-get update && apt-get install git -y
+
+# Install venv
+RUN apt-get install python3-venv -y
+
+# Setup dependencies
+COPY ./docker-requirements.txt /requirements.txt
+# THIS LINE WILL BE DYNAMIC. We require a different module based on which docker we are building
+# RUN echo "-e git+git@github.com:ElementAI/eai-nlp-t2s.git@setup-dev#egg=t2s" >> /requirements.txt
+
+
+# Inject private key to be able to clone private repository
+# Note: This is unsafe! The private key will remain in the docker layer.
+# TODO: Find a safe way to build this image
+# Need to chmod 600 on .ssh/id_rsa
+# COPY ./ssh/id_rsa /root/.ssh/id_rsa
+# COPY ./ssh/known_hosts /root/.ssh/known_hosts
+# RUN ssh-keyscan -H github.com >> /root/.ssh/known_hosts
+
+
+
+# Install deps and copy app files
+RUN python3 -m venv venv
+RUN . ./venv/bin/activate
+RUN pip install -r /requirements.txt
+
+# Build tf serving api
+RUN git clone --recurse-submodules https://github.com/tensorflow/serving.git
+WORKDIR ./serving
+RUN mv ./tensorflow ./tensorflow_
+RUN mv ./tensorflow_/tensorflow ./
+
+# Will output a tensorflow_serving folder that will be used by the tf_serving_client
+RUN python -m grpc.tools.protoc ./tensorflow_serving/apis/*.proto --python_out=/ --grpc_python_out=/ --proto_path=.
+
+RUN mv ./tensorflow ./tensorflow_
+RUN mv ./tensorflow_ ./tensorflow
+
+
+WORKDIR /
+COPY ./tf_serving_client.py .
+COPY ./rest_api.py .
+
+CMD python rest_api.py

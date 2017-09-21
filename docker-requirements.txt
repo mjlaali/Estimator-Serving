@@ -1,0 +1,4 @@
+Flask==0.12.2
+numpy==1.13.1
+grpcio==1.6.0
+grpcio-tools==1.6.0

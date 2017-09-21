@@ -1,0 +1,55 @@
+FROM ubuntu:16.04
+ARG SERVER_PORT
+
+
+RUN apt-get update && apt-get install -y curl
+
+# Install Bazel
+RUN apt-get install -y pkg-config zip g++ zlib1g-dev unzip python
+RUN curl -LOk https://github.com/bazelbuild/bazel/releases/download/0.5.4/bazel-0.5.4-installer-linux-x86_64.sh
+RUN chmod +x bazel-0.5.4-installer-linux-x86_64.sh
+RUN ./bazel-0.5.4-installer-linux-x86_64.sh
+
+# Install pip
+RUN apt-get update && apt-get install -y python3-pip
+
+# Install gRPC (not required, since we build the gRPC client on the host)
+# RUN pip3 install grpcio grpcio-tools
+
+# Install Tf serving deps
+RUN apt-get update && apt-get install -y \
+        build-essential \
+        curl \
+        libcurl3-dev \
+        git \
+        libfreetype6-dev \
+        libpng12-dev \
+        libzmq3-dev \
+        pkg-config \
+        python-dev \
+        python-numpy \
+        python-pip \
+        software-properties-common \
+        swig \
+        zip \
+        zlib1g-dev \
+        vim
+
+# Install tfserving
+RUN echo "deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal" | tee /etc/apt/sources.list.d/tensorflow-serving.list
+RUN curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | apt-key add -
+RUN apt-get update && apt-get remove tensorflow-model-server -y
+RUN apt-get upgrade tensorflow-model-server -y
+
+# Copy models
+# TODO: Replace model folder by service specific folder
+# Might be fetched from network when building the image or possible directly taken from network by tensorflow server
+
+COPY ./models/ ./models
+
+COPY ./model_config.txt ./model_config.txt
+ENV SERVER_PORT=$SERVER_PORT
+EXPOSE $SERVER_PORT
+
+# Cmd
+CMD tensorflow_model_server --port=${SERVER_PORT} --model_config_file=/model_config.txt
