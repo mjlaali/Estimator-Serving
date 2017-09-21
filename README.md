@@ -1,21 +1,6 @@
-# eai-nlp: entry point to the NLP project
-
-This repo is an umbrella over reuseable components making up the Element AI natural
-language processing (NLP) pipeline.
-
-Each component will have its own repo and will be imported here as a `git` Submodule. That way we can pull/push upstream changes easily.
-
-Each productizable deliverable (subset of components from this repo) will be spun off as a separate repo that can be deployed in production.
-
-The initial set of components includes (tentatively):
-1. speech to text
-2. machine translation (à la NMT)
-3. speech to text
-
-
 # Instructions for running project
 This assumes you are running python 3.x[6]
-Assuming you want to use the `toy_model.py` example, here's what you need to do
+Assuming you want to use [the iris example](https://www.tensorflow.org/get_started/estimator), here's what you need to do
 
 
 ## Create virtual environment
